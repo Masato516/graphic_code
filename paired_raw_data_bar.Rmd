@@ -1,0 +1,22 @@
+---
+title: "paired_raw_data_bar"
+author: "Yagi_Masato"
+date: "2020/2/3"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load}
+  setwd("C:/Users/yagin/Google ドライブ/graphic_code/code_sample")
+  library(ggplot2)
+  library(xlsx)
+  library(plyr)
+```
+
+```{r }
+f <- ggplot()
+```
+

@@ -1,0 +1,97 @@
+---
+title: "bar_graph"
+author: "Yagi_Masato"
+date: "2019/11/29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r install library}
+setwd("C:/Users/yagin/Google ドライブ/graphic_code")
+library(ggplot2)
+library(xlsx)
+```
+
+```{r make_func}
+st.err <- function(x){
+  sd(x)/sqrt(length(x))
+}
+```
+ggplot( )に要約したデータを入れてしまっていた！！
+→生データをいれてstat_summmary内でデータを要約してbar,生plotを入れるべきだった！！
+```{r make_bar_graph 失敗例}
+#Make some fake data
+ex=data.frame(cond=rep(c('Trp','BCAA','Placebo'),each=7),
+    treat=rep(1:7,times=3),
+    value=rnorm(21) + rep(c(3,1,4),each=7) )
+print(ex)
+
+
+# #Calculate the mean and SD of each condition/treatment pair
+# #計算対象の項目名、~でグループ化の指示、データの入っているオブジェクト、関数指定
+# agg=aggregate(value~cond, data=ex, FUN="mean") #mean
+# agg$se=aggregate(value~cond, data=ex, FUN="st.err")$value #add the SD
+# 
+# dodge <- position_dodge(width=0.9)
+# limits <- aes(ymax=value+se, ymin=value-se) #Set up the error bars
+# 
+# p <- ggplot(agg, aes(x=cond,y=value))
+# 
+# #Plot, attempting to overlay the raw data
+# print(
+#        p + geom_bar(position=dodge, stat="identity", fill="gray") +
+#        geom_errorbar(limits, position=dodge, width=0.25) +
+#        geom_point(colour="black", size=3, shape=1)
+# )
+```
+ggplot( )に生データを入れて
+stat_summaryによって要約データを入れた
+対応のあるデータを同色plotで表示
+```{r}
+title_label <- ""
+x_label <- ""
+y_label <- "AUC(mm × min)"
+p_value <- "p=0.445"
+annotate_x <- 0.5
+annotate_y <- 4500
+annotate_size <- ""
+y_axis_scale <- seq(0,7000,by=1000)
+#jitterなし
+```
+
+
+```{r 成功例:対応あるものに濃淡を一致}
+data_AUC <- read.xlsx("data_Bar_graphs3_paired_raw_plots.xlsx",4)
+f <- ggplot(data_AUC, aes(y=AUC,x=Condition,fill=subject)) + 
+  #棒グラフの設定
+  stat_summary(geom="bar",fun.y = "mean",width=0.5,fill="gray") + 
+  #実データ,エラーバーの設定
+  stat_summary(fun.y = "mean",fun.ymin = function(x)mean(x)-st.err(x),
+               fun.ymax = function(x)mean(x)+st.err(x),geom="errorbar",width=0.2) +
+  # plotの色を離散的に(+色を変えている)
+  geom_point(colour="black", size=3, shape=21) +
+  # fillの値がintegerでないといけないかも
+  scale_fill_gradient(low="#FFFFFF",high="#666666",breaks=0:7,guide=guide_legend()) +
+  scale_x_discrete(limits=c("Placebo","BCAA","Trp")) +
+  guides(fill=FALSE) + # 凡例を削除
+  theme_set(theme_classic(base_size = 18, base_family = "Helvetica")) +
+  labs(title=title_label,x=x_label,y=y_label) +
+  scale_y_continuous(breaks=y_axis_scale) + 
+  annotate("text",x=annotate_x,y=annotate_y,lineheight=1.5,hjust=0,label=p_value,size=5) + #注釈
+#ラベルと題名
+  theme(plot.title=element_text(hjust=0.5), #題名の位置とフォント
+        panel.grid.major=element_blank(), #背景の削除
+        panel.grid.minor=element_blank(),
+        panel.background=element_blank(),
+        axis.line=element_line(colour="black"), #軸の色の変更
+        axis.ticks=element_line(colour="black"),
+        axis.text=element_text(size=12),
+        #軸のタイトルとラベルの文字サイズの変更
+        axis.title=element_text(size=14,face="bold"))
+f
+```
+
+

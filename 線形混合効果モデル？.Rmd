@@ -1,0 +1,27 @@
+---
+title: "liner_mixed_effects_model"
+author: "Yagi_Masato"
+date: "2019/12/20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load}
+  setwd("C:/Users/yagin/Google ドライブ/graphic_code")
+  library(ggplot2)
+  library(xlsx)
+  library(lme4)
+```
+
+```{r}
+#lmer() は 反応変数 ~ 固定効果 + (変量効果 | 対象者やグループ) のように記述し, 変量効果の項はデザイン行列から (|)    により対象者ごとに区別される。
+  hungrystudy <- read.xlsx("LME_data_hungry.xlsx", 1)
+  print(hungrystudy)
+  data <- data.frame(hungrystudy)
+  data
+  ric.model <- lmer(VAS ~ Time + (Time | subject), data = data)
+  summary(ric.model)
+```
