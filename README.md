@@ -1,2 +1,2 @@
 # graphic_code
-ggplot2で作成したグラフ
+ggplot2で作成したグラフのコードとサンプル図
